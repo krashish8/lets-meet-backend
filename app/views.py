@@ -29,4 +29,53 @@ class MeetView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = MeetSerializer
     queryset = Meetup.objects.all()
 
+class FillResponseView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, AllowMeetCreatorandMembers)
+    serializer_class = FillResponseSerializer
+    lookup_field = 'pk'
+    queryset = Meetup.objects.all()
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'meetup':self.get_object()
+        }
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.fill_response()
+        return API_RESPONSE(status=status.HTTP_200_OK)
+
+class AddMembersView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, AllowMeetCreator)
+    serializer_class = AddMembersSerializer
+    lookup_field = 'pk'
+    queryset = Meetup.objects.all()
+
+    def get_object(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return None
+        return super().get_object()
+
+    def get_serializer_context(self):
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self,
+            'meetup':self.get_object()
+        }
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.add_members()
+        return API_RESPONSE(status=status.HTTP_200_OK)
 

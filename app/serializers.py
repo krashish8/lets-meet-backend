@@ -47,3 +47,40 @@ class ProposeMeetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Meetup
         fields = ('title', 'description', 'is_slack')
+
+class FillResponseSerializer(serializers.Serializer):
+    response = serializers.CharField(max_length=255)
+
+    def fill_response(self):
+        meetup = self.context['meetup']
+        response = self.validated_data['response']
+        user = self.context['request'].user
+
+        if Response.objects.filter(member=user, meetup=meetup):
+            raise serializers.ValidationError("Already Responded")
+
+        Response.objects.create(
+            member=user,
+            meetup=meetup,
+            response=response
+        )
+
+class MemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email',)
+
+class AddMembersSerializer(serializers.Serializer):
+    members = MemberSerializer(many=True)
+
+    def add_members(self):
+        meetup = self.context['meetup']
+        members = self.validated_data['members']
+        for member in members:
+            user = User.objects.filter(username=member['email'])
+            if not user:
+                raise serializers.ValidationError("No such member")
+            user = user[0]
+
+            meetup.members.add(user)
+            meetup.save()
