@@ -6,6 +6,15 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework import permissions
 
+class GetTokenView(generics.GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated, permissions.IsAdminUser,)
+    serializer_class = GetTokenSerializer
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        response = serializer.get_token()
+        return Response(response.data, status.HTTP_200_OK)
 
 class LoginView(generics.GenericAPIView):
     permission_classes = (permissions.AllowAny,)

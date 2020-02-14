@@ -11,6 +11,21 @@ def create_auth_token(user):
 class TokenSerializer(serializers.Serializer):
     token = serializers.CharField(max_length=500)
 
+class GetTokenSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate(self, data):
+        email = data['email']
+        if not User.objects.filter(email=email):
+            raise serializers.ValidationError("User is not registered!")
+        return data
+
+    def get_token(self):
+        email = self.validated_data['email']
+        user = User.objects.get(email=email)
+        return TokenSerializer({
+            'token': Token.objects.get(user=user)
+        })
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
