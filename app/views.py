@@ -176,3 +176,10 @@ class CompleteTaskView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.complete_task()
         return API_RESPONSE(status=status.HTTP_200_OK)
+        
+class TasksView(generics.ListAPIView):
+    permission_classes = (permissions.IsAuthenticated, )
+    serializer_class = TaskSerializer
+
+    def get_queryset(self):
+        return Task.objects.filter(assigned_to=self.request.user)

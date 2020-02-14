@@ -175,3 +175,8 @@ class CompleteTaskSerializer(serializers.Serializer):
         task = self.context['task']
         task.completed = True
         task.save()
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = '__all__'
