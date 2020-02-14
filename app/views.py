@@ -25,6 +25,8 @@ class ProposeMeetView(generics.GenericAPIView):
         return API_RESPONSE(response.data, status.HTTP_200_OK)
 
 class MeetView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = (permissions.IsAuthenticated, AllowMeetCreator)
+    permission_classes = (permissions.IsAuthenticated, AllowMeetCreatorandMembers)
     serializer_class = MeetSerializer
     queryset = Meetup.objects.all()
+
+
