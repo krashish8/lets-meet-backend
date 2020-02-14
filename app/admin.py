@@ -3,3 +3,4 @@ from .models import *
 
 admin.site.register(Meetup)
 admin.site.register(Response)
+admin.site.register(Task)
